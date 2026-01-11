@@ -7,11 +7,10 @@
 ---
 
 ## 📸 Workflow Preview
-
-```
+---
 <img width="1809" height="763" alt="Screenshot 2026-01-10 215203" src="https://github.com/user-attachments/assets/86487c6f-98a8-4190-9cb5-fb3480d1fbab" />
 
-```
+
 ---
 
 ## ❌ Problem

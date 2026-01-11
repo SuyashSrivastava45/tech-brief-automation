@@ -1,0 +1,310 @@
+{
+  "name": "Ai News",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 22,
+              "triggerAtMinute": null
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        192
+      ],
+      "id": "47cb253d-9f66-4e3a-a586-52a1ccb25667",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        336,
+        192
+      ],
+      "id": "979f9078-6b43-4891-83fe-7923370e4d58",
+      "name": "Data Aggregator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "\n---\n\nYou are an **AI news summarizer** handling multiple categories.\n\nUse **only the provided items**. **Do not invent, assume, or add any content** beyond the input.\n\nOrganize the output by category and include:\n\n* **Up to 3 AI news items**\n* **Up to 3 broader technology news items**\n* If fewer items are provided, output only what exists.\n\n### Formatting rules (must be followed strictly):\n\n**Output must start EXACTLY like this:**\n\n```\nHi there,\n\nHere's your Tech Brief:\n```\n\n🤖 AI NEWS\n\nFor each AI-related item:\n\nHEADLINE IN ALL CAPS\n  – 1 to 1.5 lines of concise, factual summary\n  – Add **1 relevant emoji** at the end of the summary\n\n💻 TECH NEWS\n\nFor each broader technology item:\n\nHEADLINE IN ALL CAPS\n  – 1 to 1.5 lines of concise, factual summary\n  – Add **1 relevant emoji** at the end of the summary\n\nStrict constraints:\n\n* Headlines must be **fully capitalized**\n* Summaries must be **neutral, factual, and concise**\n* Use **bullet points only**\n* No opinions, no hype, no hashtags\n* Do not repeat or rephrase headlines\n* Do not exceed item limits\n* Do not add extra sections or commentary\n* Emojis must enhance clarity, not decoration overload\n\n---\n\n\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.8,
+      "position": [
+        560,
+        192
+      ],
+      "id": "90b39c24-2e4f-4d62-a8e4-902863541e75",
+      "name": "Summarizer Model"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        632,
+        416
+      ],
+      "id": "d7a6ee2c-95b9-492a-b0fa-7cba3438b374",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "yAYf7TJaZdYrk0wM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "suyashsrivastava614@gmail.com",
+        "subject": "Essential AI and Cybersecurity Updates",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        192
+      ],
+      "id": "da7eda20-0f11-4e49-a34e-c5346fee91c3",
+      "name": "Send a message",
+      "webhookId": "a3beeb76-830a-4747-8cca-ba98bc38b21e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eJziJLzIIKFgqAls",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TheHackersNews",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "f366f935-4fd4-495b-8f9d-02a51149cb14",
+      "name": "Cyber Security News"
+    },
+    {
+      "parameters": {
+        "url": "https://aibusiness.com/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        0
+      ],
+      "id": "f9ea589d-4b80-492f-94a3-3534292fac4f",
+      "name": "Ai News"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        112,
+        176
+      ],
+      "id": "e4fed51e-b446-41d7-9805-f94fd29b63ba",
+      "name": "Merger"
+    },
+    {
+      "parameters": {
+        "content": "### 🧠 AI & CYBERSECURITY NEWS DIGEST\n\n**What this workflow does**\nAutomatically collects the latest AI and Cybersecurity articles from RSS feeds, summarizes them using an AI model, and delivers a clean, structured email brief.\n\n**Flow summary**\n\n* Triggers on a daily schedule\n* Fetches AI and Cybersecurity news via RSS\n* Merges and aggregates all items\n* Generates concise, high-signal summaries\n* Emails the final digest to the recipient\n\n**Output**\n\n* **AI NEWS:** Key AI developments (up to 3 items)\n* **CYBER SECURITY UPDATES:** Threats, vulnerabilities, and mitigations (up to 3 items)\n\n**Notes**\n\n* Uses only provided feed content\n* No manual effort required\n* Update RSS links or email settings to customize delivery\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        528
+      ],
+      "typeVersion": 1,
+      "id": "a1197716-868d-4380-a89d-0eefdaee5cbc",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_events"
+            },
+            {
+              "name": "q",
+              "value": "AI Tech Events In India"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "gl",
+              "value": "us"
+            },
+            {
+              "name": "api_key",
+              "value": "6cfc488fe15c40d939cce680bf040273d64365eb5569dbbd5dcee08d32e13ff7"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        384
+      ],
+      "id": "09676d42-3324-4eab-86a4-08196ab53d85",
+      "name": "Fetch Event"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Ai News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cyber Security News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Aggregator": {
+      "main": [
+        [
+          {
+            "node": "Summarizer Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarizer Model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarizer Model",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cyber Security News": {
+      "main": [
+        [
+          {
+            "node": "Merger",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Ai News": {
+      "main": [
+        [
+          {
+            "node": "Merger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merger": {
+      "main": [
+        [
+          {
+            "node": "Data Aggregator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Event": {
+      "main": [
+        [
+          {
+            "node": "Merger",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "8dfe2890-b981-4f53-a8fb-83ab40b4c169",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6664b0ed65b0275a07883a61392867092c71a855754c2110fae0bbddf930ca3f"
+  },
+  "id": "Z3jklgnz6InYyI1JWFvuR",
+  "tags": []
+}
